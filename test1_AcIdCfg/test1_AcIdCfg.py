@@ -69,7 +69,7 @@ try:
     app.Window.Button2.click()#активация
     app.Dialog.Wait('visible',timeout=100)
     app.Dialog.Button0.click()
-    f.write("Идентификаторы были корректно установлены\n")
+    f.write("Идентификаторы были корректно установлены\n\n")
     print ("Идентификаторы были корректно установлены")
 except:
     f.write("Идентификаторы не были корректно установлены\n\n")
