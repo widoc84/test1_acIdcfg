@@ -142,7 +142,6 @@ for k in ids.keys():
 f.write("Проверка реестра завершилась\n\n")
 print ("Проверка реестра завершилась")
 
-time.sleep(30)
 
 #Сверка файлов x32
 f.write("___Начало сверки файлов 32bit ___\n")
@@ -154,13 +153,23 @@ i = 1
 try:
     while i < 10:
         si = str(i)
-        hashlist.append(checkdirx32("TmDrv32_" + si + ".dll"))
+        data = checkdirx32("TmDrv32_" + si + ".dll")
+        if data != None:
+            hashlist.append(data)
         i = i + 1
 except:
     i = i + 1
 print ("файл с хешами 32bit был создан")
 f.write("файл с хешами 32bit был создан\n")
 
+#Проверка дубликатов
+sethashlist = set(hashlist)
+if len(hashlist) == len(sethashlist):
+    print("Дубликатов не обнаружено")
+    f.write("Дубликатов не обнаружено\n")
+else:
+    print("Есть дубликаты hash")
+    f.write("Есть дубликаты hash\n")
 
 for k in ids.keys():
     try:
@@ -182,6 +191,7 @@ for k in ids.keys():
         f.write("Файлы для идентификатора 32bit " + k + " не найдены.\n\n")
         result = 0
 
+
 #Сверка файлов x64
 f.write("___Начало сверки файлов 64bit___\n")
 print ("Начало сверки файлов 64bit")
@@ -192,12 +202,23 @@ i = 1
 try:
     while i < 10:
         si = str(i)
-        hashlist.append(checkdirx64("TmDrv64_" + si + ".dll"))
+        data = checkdirx32("TmDrv64_" + si + ".dll")
+        if data != None:
+            hashlist.append(data)
         i = i + 1
 except:
     i = i + 1
 print ("файл с хешами 64bit был создан")
 f.write("файл с хешами 64bit был создан\n")
+
+#Проверка дубликатов
+sethashlist = set(hashlist)
+if len(hashlist) == len(sethashlist):
+    print("Дубликатов не обнаружено")
+    f.write("Дубликатов не обнаружено\n")
+else:
+    print("Есть дубликаты hash")
+    f.write("Есть дубликаты hash\n")
 
 
 for k in ids.keys():
@@ -230,17 +251,15 @@ if result == 1:
     f.write("Итоговое тестирование завершилось успешно \n")
     print ("В результате проверки ошибок не обнаружено")
 
-    label1color = Label(main,
+    button = Button(main,
                         width=35, height=20, compound=CENTER,
-                        bg="green")
+                        bg="green", command=button_clicked)
 else:
     f.write("Итоговое тестирование завершилось неудачно \n")
     print ("В результате проверки были обнаружены ошибки")
-    label1color = Label(main,
+    button = Button(main,
                         width=35, height=20, compound=CENTER,
-                        bg="red")
-button = Button(main,text="Закрыть", command=button_clicked)
-label1color.pack()
+                        bg="red", command=button_clicked)
 button.pack()
 f.write("_________________________________Конец записи лога_________________________________\n\n")
 f.close()
