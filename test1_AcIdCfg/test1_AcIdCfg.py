@@ -1,11 +1,14 @@
 from pywinauto import Application
+from tkinter import *
 import time
 import os
 import winreg
 import datetime
 import hashlib
 
+main = Tk()
 result = 1
+
 
 
 #Получение даты
@@ -17,13 +20,24 @@ date = str(day) + str(month) + "_" + str(hour) +  str(minute)
 dt = datetime.datetime.strptime(date, "%d%m_%H%M")
 date = dt.strftime("%d%m_%H%M")
 
-def checkdir(name):
+def checkdirx32(name):
    for root, dirs, files in os.walk("C:\\Windows\\SysWOW64"):
     for file in files:
         if file.endswith(name):
             path = os.path.join(root, file)
             hash = hashlib.md5(open(path, 'rb').read()).digest()[:16]
             return hash
+
+def checkdirx64(name):
+   for root, dirs, files in os.walk("C:\\Windows\\System32"):
+    for file in files:
+        if file.endswith(name):
+            path = os.path.join(root, file)
+            hash = hashlib.md5(open(path, 'rb').read()).digest()[:16]
+            return hash
+
+def button_clicked():
+    exit()
 
 #Создание и старт записи в файл
 path = "c:\\testlog\\test" + date  + ".txt"
@@ -128,56 +142,86 @@ for k in ids.keys():
 f.write("Проверка реестра завершилась\n\n")
 print ("Проверка реестра завершилась")
 
+time.sleep(30)
 
-#Сверка файлов
-f.write("___Начало сверки файлов___\n")
-print ("Начало сверки файлов")
+#Сверка файлов x32
+f.write("___Начало сверки файлов 32bit ___\n")
+print ("Начало сверки файлов 32 bit")
 
 hashlist = []
-hashlist.append(checkdir("TmDrv32.dll"))
+hashlist.append(checkdirx32("TmDrv32.dll"))
 i = 1
 try:
     while i < 10:
         si = str(i)
-        hashlist.append(checkdir("TmDrv32_" + si + ".dll"))
+        hashlist.append(checkdirx32("TmDrv32_" + si + ".dll"))
         i = i + 1
 except:
     i = i + 1
-print ("файл с хешами был создан")
+print ("файл с хешами 32bit был создан")
+f.write("файл с хешами 32bit был создан\n")
 
 
 for k in ids.keys():
-    for k in ids.keys():
-    path = ids.get(k) + "\TmDrv32.dll"
-    testpath = hashlib.md5(open(path, 'rb').read()).digest()[:16]
+    try:
+        result_file = 0
+        path = ids.get(k) + "\TmDrv32.dll"
+        testpath = hashlib.md5(open(path, 'rb').read()).digest()[:16]
+        for hashkey in hashlist:
+            if testpath == hashkey:
+                result_file = 1
+    except:
+        print("Возникла ошибка")
 
-#ruToken = "C:\\Accord.x64\\Identifiers\\ruToken\\TmDrv32.dll"
-#ruToken1 = "C:\\Windows\\SysWOW64\\TmDrv32_1.dll"
-#checkruToken = hashlib.md5(open(ruToken, 'rb').read()).digest()[:16]
-#checkruToken1 = hashlib.md5(open(ruToken1, 'rb').read()).digest()[:16]
 
-#shipka = "C:\\Accord.x64\\Identifiers\\SHIPKA\\TmDrv32.dll"
-#shipka1 = "C:\\Windows\\SysWOW64\\TmDrv32_2.dll"
-#checkshipka= hashlib.md5(open(shipka, 'rb').read()).digest()[:16]
-#checkshipka1 = hashlib.md5(open(shipka1, 'rb').read()).digest()[:16]
+    if result_file == 1:
+        print("Файлы для идентификатора 32bit " + k + " успешно найдены.")
+        f.write("Файлы для идентификатора 32bit " + k + " успешно найдены.\n")
+    else:
+        print("Файлы для идентификатора 32bit " + k + " не найдены.")
+        f.write("Файлы для идентификатора 32bit " + k + " не найдены.\n\n")
+        result = 0
 
-#a = checkruToken == checkruToken1
-#b = checkshipka == checkshipka1
+#Сверка файлов x64
+f.write("___Начало сверки файлов 64bit___\n")
+print ("Начало сверки файлов 64bit")
 
-#if a:
-#     f.write("Проверка ruToken завершилась успешно\n")
-#    print ("Проверка ruToken завершилась успешно")     
-#else:
-#    f.write("Проверка ruToken завершилась неудачей\n")
-#    print ("Проверка ruToken завершилась неудачей")
-#    result = 0
-#if b:
-#     f.write("Проверка ШИПКА завершилась успешно\n")
-#     print ("Проверка ШИПКА завершилась успешно")
-#else:
-#    f.write("Проверка ШИПКА завершилась неудачей\n")
-#    print ("Проверка ШИПКА завершилась неудачей")
-#    result = 0
+hashlist=[]
+hashlist.append(checkdirx64("TmDrv64.dll"))
+i = 1
+try:
+    while i < 10:
+        si = str(i)
+        hashlist.append(checkdirx64("TmDrv64_" + si + ".dll"))
+        i = i + 1
+except:
+    i = i + 1
+print ("файл с хешами 64bit был создан")
+f.write("файл с хешами 64bit был создан\n")
+
+
+for k in ids.keys():
+    try:
+        result_file = 0
+        path = ids.get(k) + "\TmDrv64.dll"
+        testpath = hashlib.md5(open(path, 'rb').read()).digest()[:16]
+        for hashkey in hashlist:
+            if testpath == hashkey:
+                result_file = 1
+    except:
+        print("Возникла ошибка")
+
+
+    if result_file == 1:
+        print("Файлы для идентификатора 64bit " + k + " успешно найдены.")
+        f.write("Файлы для идентификатора 64bit " + k + " успешно найдены.\n")
+    else:
+        print("Файлы для идентификатора 64bit " + k + " не найдены.")
+        f.write("Файлы для идентификатора 64bit " + k + " не найдены.\n")
+        result = 0
+
+
+
 f.write("Сравнение файлов завершилось \n\n")
 print ("Проверка сверки файлов завершилась")
 
@@ -185,8 +229,19 @@ print ("Проверка сверки файлов завершилась")
 if result == 1:
     f.write("Итоговое тестирование завершилось успешно \n")
     print ("В результате проверки ошибок не обнаружено")
+
+    label1color = Label(main,
+                        width=35, height=20, compound=CENTER,
+                        bg="green")
 else:
     f.write("Итоговое тестирование завершилось неудачно \n")
     print ("В результате проверки были обнаружены ошибки")
+    label1color = Label(main,
+                        width=35, height=20, compound=CENTER,
+                        bg="red")
+button = Button(main,text="Закрыть", command=button_clicked)
+label1color.pack()
+button.pack()
 f.write("_________________________________Конец записи лога_________________________________\n\n")
 f.close()
+main.mainloop()
