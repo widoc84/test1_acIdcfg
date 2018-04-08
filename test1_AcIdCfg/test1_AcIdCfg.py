@@ -9,7 +9,7 @@ import hashlib
 main = Tk()
 result = 1
 
-test
+
 
 #Получение даты
 day = datetime.datetime.now().day
