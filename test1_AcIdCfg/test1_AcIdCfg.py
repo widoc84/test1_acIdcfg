@@ -20,6 +20,19 @@ date = str(day) + str(month) + "_" + str(hour) +  str(minute)
 dt = datetime.datetime.strptime(date, "%d%m_%H%M")
 date = dt.strftime("%d%m_%H%M")
 
+def gettime():
+    day = datetime.datetime.now().day
+    month = datetime.datetime.now().month
+    year = datetime.datetime.now().year
+    hour = datetime.datetime.now().hour
+    minute = datetime.datetime.now().minute
+    second = datetime.datetime.now().second
+    date = str(day) + "/" + str(month) + "/" + str(year) + " " + str(hour) + ":" + str(minute) + ":" + str(second)
+    dt = datetime.datetime.strptime(date, '%d/%m/%Y %H:%M:%S')
+    date = dt.strftime('%d/%m/%Y %H:%M:%S')
+    return date
+
+
 def checkdirx32(name):
    for root, dirs, files in os.walk("C:\\Windows\\SysWOW64"):
     for file in files:
@@ -43,14 +56,16 @@ def button_clicked():
 path = "c:\\testlog\\test" + date  + ".txt"
 f = open(path, "tw", encoding='utf-8')
 f.write("_________________________________Начало записи лога_________________________________\n\n")
-
+datestart = datetime.datetime.now()
+timestart = gettime()
+f.write("Проверка началась в " + timestart + "\n\n")
 
 #Загрузка данных из файла в словарь
 ids = {}
 for line in open('c:\\in\\in.txt'):
     line = line.split('\n') # из строки получаем список
     line = line[0] # избавляемся от последнего элемента (\n)
-    line = line.split(' ') # разделяем данные
+    line = line.split('|') # разделяем данные
     ids[line[0]] = line[1]
 
 
@@ -122,6 +137,15 @@ except:
 f.write("___Начало сверки реестра___\n")
 print ("Начало сверки реестра")
 
+a = winreg.QueryValueEx(hKey,"Main")==("TM-идентификатор (USB)", 1)
+if a:
+        print ("Проверка TM-идентификатор (USB) завершилась успешно")  
+        f.write("Проверка TM-идентификатор (USB) завершилась успешно\n")
+else:
+        print ("Идентификатор TM-идентификатор (USB) не найден")
+        f.write("Идентификатор TM-идентификатор (USB) не найден\n")
+
+
 for k in ids.keys():
     try:
         i = 0
@@ -171,6 +195,23 @@ else:
     print("Есть дубликаты hash")
     f.write("Есть дубликаты hash\n")
 
+#Проверка основного идентификатора
+result_file = 0
+path = "C:\Accord.x64\Identifiers\TM-USB\TmDrv32.dll"
+testpath = hashlib.md5(open(path, 'rb').read()).digest()[:16]
+for hashkey in hashlist:
+    if testpath == hashkey:
+        result_file = 1
+
+if result_file == 1:
+        print("Файлы для идентификатора 32bit TM-идентификатор (USB) успешно найдены.")
+        f.write("Файлы для идентификатора 32bit " + k + " успешно найдены.\n")
+else:
+        print("Файлы для идентификатора 32bit TM-идентификатор (USB) не найдены.")
+        f.write("Файлы для идентификатора 32bit TM-идентификатор (USB) не найдены.\n\n")
+        result = 0
+
+#Проверка остальных идентификаторов
 for k in ids.keys():
     try:
         result_file = 0
@@ -202,7 +243,7 @@ i = 1
 try:
     while i < 10:
         si = str(i)
-        data = checkdirx32("TmDrv64_" + si + ".dll")
+        data = checkdirx64("TmDrv64_" + si + ".dll")
         if data != None:
             hashlist.append(data)
         i = i + 1
@@ -220,7 +261,24 @@ else:
     print("Есть дубликаты hash")
     f.write("Есть дубликаты hash\n")
 
+#Проверка основного идентификатора
+result_file = 0
+path = "C:\Accord.x64\Identifiers\TM-USB\TmDrv64.dll"
+testpath = hashlib.md5(open(path, 'rb').read()).digest()[:16]
+for hashkey in hashlist:
+    if testpath == hashkey:
+        result_file = 1
 
+if result_file == 1:
+        print("Файлы для идентификатора 64bit TM-идентификатор (USB) успешно найдены.")
+        f.write("Файлы для идентификатора 64bit " + k + " успешно найдены.\n")
+else:
+        print("Файлы для идентификатора 64bit TM-идентификатор (USB) не найдены.")
+        f.write("Файлы для идентификатора 64bit TM-идентификатор (USB) не найдены.\n\n")
+        result = 0
+
+
+#Проверка остальных идентификаторов
 for k in ids.keys():
     try:
         result_file = 0
@@ -261,6 +319,14 @@ else:
                         width=35, height=20, compound=CENTER,
                         bg="red", command=button_clicked)
 button.pack()
+datefinish = datetime.datetime.now()
+timefinish = gettime()
+f.write("Проверка завершилась в " + timefinish + "\n")
+de = datefinish - datestart
+de = str(de.seconds)
+f.write("Общее время составило " + de + " секунд\n" )
+print("Общее время составило " + de + " секунд")
 f.write("_________________________________Конец записи лога_________________________________\n\n")
 f.close()
 main.mainloop()
+time.sleep(100)
