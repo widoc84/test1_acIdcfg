@@ -2,7 +2,6 @@ pipeline {
   agent any
   stages {
     stage('Prepare') {
-      parallel {
         stage('get_git') {
           agent any
           steps {
@@ -15,7 +14,6 @@ pipeline {
           }
         }
       }
-    }
     stage('run') {
       parallel {
         stage('dearchive_files') {
