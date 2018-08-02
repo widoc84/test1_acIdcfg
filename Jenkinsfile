@@ -11,7 +11,7 @@ pipeline {
         }
         stage('archive_files') {
           steps {
-            stash includes: '*', name: 'file', useDefaultExcludes: false
+            stash includes: '*', name: 'file'
           }
         }
       }
