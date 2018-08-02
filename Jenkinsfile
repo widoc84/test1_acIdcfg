@@ -10,9 +10,8 @@ pipeline {
           }
         }
         stage('archive_files') {
-          agent any
           steps {
-            sh 'stash includes: \'**\', name: \'file\', useDefaultExcludes: false'
+            stash includes: '*', name: 'file', useDefaultExcludes: false
           }
         }
       }
@@ -27,13 +26,16 @@ pipeline {
             
           }
           steps {
-            sh 'unstash \'file\''
+            unstash 'file'
           }
         }
         stage('run_script') {
           agent {
             node {
               label 'win7_64_1'
+              withPythonEnv('/usr/bin/python3.5') {
+                    pysh 'C:\\jenkins\\workspace\\test_from_vm\\.pyenv-usr-bin-python3.5\\bin\\python3.5'
+                }
             }
             
           }
